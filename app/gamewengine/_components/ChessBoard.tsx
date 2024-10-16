@@ -18,9 +18,9 @@ const ChessBoard = () => {
   const [showRestartPrompt, setShowRestartPrompt] = useState<boolean>(false);
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
 
-  const saveGame = (fen: string) => {
+  const saveGame = (fen: string, moveHistory: string[]) => {
     localStorage.setItem("chessGameState", fen);
-    localStorage.setItem("moveHistory", JSON.stringify(moveHistory)); // Save move history
+    localStorage.setItem("moveHistory", JSON.stringify(moveHistory));
   };
 
   const loadGame = () => {
@@ -31,13 +31,12 @@ const ChessBoard = () => {
       setFen(savedFen);
     }
     if (savedMoveHistory) {
-      setMoveHistory(JSON.parse(savedMoveHistory)); // Load move history
+      setMoveHistory(JSON.parse(savedMoveHistory));
     }
   };
 
   useEffect(() => {
     loadGame(); // Load game from localStorage on component mount
-    
   }, []);
 
   const startGame = async () => {
@@ -48,7 +47,7 @@ const ChessBoard = () => {
       setFen(chess.fen());
       setValidMoves([]);
       setMoveHistory([]); // Reset move history on new game
-      saveGame(chess.fen()); // Save new game state
+      saveGame(chess.fen(), []); // Save new game state
     } catch (error) {
       console.error("Error starting the game:", error);
     }
@@ -69,23 +68,22 @@ const ChessBoard = () => {
     const promotionRank =
       (move.to[1] === "8" && chess.turn() === "w") ||
       (move.to[1] === "1" && chess.turn() === "b");
-
     const moveObj =
       isPawn && promotionRank ? { ...move, promotion: "q" } : move;
-
     const result = chess.move(moveObj);
     if (result) {
       setFen(chess.fen());
       setValidMoves([]);
-      setMoveHistory((prevHistory) => {
-        const newHistory = [
-          ...prevHistory,
-          `${chess.turn() === "w" ? "Black" : "White"}: ${result.san}`,
-        ];
-        saveGame(chess.fen()); // Save after updating history
-        return newHistory;
-      });
 
+      // Record the user's move immediately after it is made
+      const userColor = chess.turn() === "w" ? "Black" : "White";
+      const userMoveHistory = `${userColor}: ${result.san}`;
+      const updatedMoveHistory = [...moveHistory, userMoveHistory];
+
+      setMoveHistory(updatedMoveHistory);
+      saveGame(chess.fen(), updatedMoveHistory); // Save after updating history
+
+      // Check for game over conditions
       if (chess.isCheckmate()) {
         toast.success("Checkmate! You win!");
         setShowRestartPrompt(true); // Show restart prompt
@@ -102,19 +100,17 @@ const ChessBoard = () => {
             "http://localhost:8080/chess/move",
             { fen: chess.fen() }
           );
-          setMessage(`Engine's move: ${response.data}`);
-          chess.move(response.data);
+          const botMoveResult = chess.move(response.data);
           setFen(chess.fen());
-          saveGame(chess.fen()); // Save after bot move
+          saveGame(chess.fen(), updatedMoveHistory); // Save after bot move
 
-          setMoveHistory((prevHistory) => {
-            const newHistory = [
-              ...prevHistory,
-              `Bot: ${chess.turn() === "w" ? "Black" : "White"}: ${response.data}`,
-            ];
-            saveGame(chess.fen()); // Save after updating history
-            return newHistory;
-          });
+          // Now record the bot's move after it's made
+          const botColor = chess.turn() === "w" ? "Black" : "White";
+          const botMoveHistory = `${botColor}: ${response.data}`;
+          const finalMoveHistory = [...updatedMoveHistory, botMoveHistory];
+
+          setMoveHistory(finalMoveHistory);
+          saveGame(chess.fen(), finalMoveHistory); // Save after updating history
 
           if (chess.isCheckmate()) {
             toast.error("Checkmate! You lose!");
@@ -148,7 +144,6 @@ const ChessBoard = () => {
       setValidMoves(validMoveSquares);
       saveGame(chess.fen());
     }
-
   };
 
   const setDifficultyLevel = async (
@@ -184,7 +179,6 @@ const ChessBoard = () => {
     saveGame(chess.fen());
   };
 
-  const getPieceIcon = (piece: string, color: string) => {
     const whitePieces: { [key: string]: string } = {
       k: "♔",
       q: "♕",
@@ -193,7 +187,7 @@ const ChessBoard = () => {
       n: "♘",
       p: "♙",
     };
-  
+
     const blackPieces: { [key: string]: string } = {
       k: "♚",
       q: "♛",
@@ -202,10 +196,9 @@ const ChessBoard = () => {
       n: "♞",
       p: "♟",
     };
-  
-    return color === "w" ? whitePieces[piece] : blackPieces[piece];
-  };
-  
+
+    
+
   const renderMoveHistory = () => {
     return (
       <div
@@ -221,16 +214,14 @@ const ChessBoard = () => {
           color: "white", // Text color
         }}
       >
-        <h3 style={{ fontSize: "1.1rem" }}>
-          Move History
-        </h3>
+        <h3 style={{ fontSize: "1.1rem" }}>Move History</h3>
         <hr />
         <p style={{ color: "rgba(180, 180, 180, 0.8)" }}>
           {moveHistory
             .map((move, index) => {
               const color = index % 2 === 0 ? "w" : "b"; // Alternate between white and black
               const piece = chess.get(move.split(" ")[0])?.type || ""; // Get the piece type from the move
-              const pieceIcon = getPieceIcon(piece, color);
+              const pieceIcon = color === "w" ? whitePieces[piece] : blackPieces[piece];
               return `${pieceIcon} ${move}`;
             })
             .join(", ")}
@@ -238,7 +229,6 @@ const ChessBoard = () => {
       </div>
     );
   };
-
 
   return (
     <div>
@@ -358,10 +348,7 @@ const ChessBoard = () => {
           <button onClick={() => setShowRestartPrompt(false)}>No</button>
         </div>
       )}
-
-
     </div>
-    
   );
 };
 
