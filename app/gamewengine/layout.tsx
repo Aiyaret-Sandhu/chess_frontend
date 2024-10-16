@@ -3,15 +3,14 @@ import React from 'react';
 import './../globals.css'; // Optional: import global styles
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Footer from '@/components/footer'
 
 const GameEngineLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div>
       
-      <main>{children}</main>
-      <footer>
-        <p>&copy; 2024 MyChess</p>
-      </footer>
+      <main className='py-4'>{children}</main>
+      <Footer />
       <ToastContainer
         position="top-right"
         autoClose={5000}
