@@ -6,6 +6,9 @@ import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Logo from "@/components/logo";
+import Link from "next/link";
+import Header from "@/components/header";
 
 const ChessBoard = () => {
   const [chess] = useState(new Chess());
@@ -31,7 +34,12 @@ const ChessBoard = () => {
       setFen(savedFen);
     }
     if (savedMoveHistory) {
-      setMoveHistory(JSON.parse(savedMoveHistory));
+      try {
+        setMoveHistory(JSON.parse(savedMoveHistory) || []); // Ensure an empty array if parsing fails
+      } catch (error) {
+        console.error("Error parsing move history:", error);
+        setMoveHistory([]); // Default to an empty array in case of error
+      }
     }
   };
 
@@ -100,7 +108,7 @@ const ChessBoard = () => {
             "http://localhost:8080/chess/move",
             { fen: chess.fen() }
           );
-          const botMoveResult = chess.move(response.data);
+          chess.move(response.data);
           setFen(chess.fen());
           saveGame(chess.fen(), updatedMoveHistory); // Save after bot move
 
@@ -179,50 +187,31 @@ const ChessBoard = () => {
     saveGame(chess.fen());
   };
 
-    const whitePieces: { [key: string]: string } = {
-      k: "♔",
-      q: "♕",
-      r: "♖",
-      b: "♗",
-      n: "♘",
-      p: "♙",
-    };
-
-    const blackPieces: { [key: string]: string } = {
-      k: "♚",
-      q: "♛",
-      r: "♜",
-      b: "♝",
-      n: "♞",
-      p: "♟",
-    };
-
-    
-
   const renderMoveHistory = () => {
     return (
       <div
         className="move-history"
         style={{
-          maxHeight: "10rem",
+          minHeight: "20rem",
+          maxHeight: "60rem",
           overflowY: "auto", // Enable vertical scroll
           padding: "0.5rem",
           border: "1px solid rgba(255, 255, 255, 0.2)",
           borderRadius: "0.25rem",
           backgroundColor: "rgba(40, 40, 40, 0.8)", // Optional background styling
-          width: "300px", // Set width for better layout control
+          width: "30rem", // Set width for better layout control
           color: "white", // Text color
         }}
       >
-        <h3 style={{ fontSize: "1.1rem" }}>Move History</h3>
+        <h3 style={{ fontSize: "1.1rem" }} className="py-2">
+          Move History
+        </h3>
         <hr />
-        <p style={{ color: "rgba(180, 180, 180, 0.8)" }}>
+        <p style={{ color: "rgba(180, 180, 180, 0.8)" }} className="py-2">
           {moveHistory
             .map((move, index) => {
-              const color = index % 2 === 0 ? "w" : "b"; // Alternate between white and black
-              const piece = chess.get(move.split(" ")[0])?.type || ""; // Get the piece type from the move
-              const pieceIcon = color === "w" ? whitePieces[piece] : blackPieces[piece];
-              return `${pieceIcon} ${move}`;
+              console.log(move);
+              return `${move.split(": ")[0]} : ${move.split(": ")[1]}`;
             })
             .join(", ")}
         </p>
@@ -232,9 +221,9 @@ const ChessBoard = () => {
 
   return (
     <div>
-      <h1 className="z-[100] text-gray-400 flex justify-start px-10 text-lg">
-        <p> Game With Bot...</p>
-      </h1>
+      
+      <Header text={"Game with Bot..."}/>
+
       <div className="flex gap-10 align-middle justify-center flex-wrap">
         <div className="flex flex-col gap-10 align-middle justify-center">
           <div className="flex gap-10">
@@ -290,7 +279,7 @@ const ChessBoard = () => {
               className="bg-black px-2 py-1"
             >
               <option value="0">Noob ( Below 400 )</option>
-              <option value="1">Begineer ( In 400-600 )</option>
+              <option value="1">Beginner ( In 400-600 )</option>
               <option value="3">Intermediate ( In 600-1000 ) </option>
               <option value="5">Advanced ( In 100-1400 )</option>
               <option value="7">Master ( In 1400-1800 )</option>
