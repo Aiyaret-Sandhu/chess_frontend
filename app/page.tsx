@@ -19,6 +19,9 @@ const Home = ({
       <Link href="/gamewfriend">
         Play with friend (local)
       </Link>
+      <Link href="/gamewonline">
+        Play with friend (Online)
+      </Link>
 
       <Footer />
     </main>

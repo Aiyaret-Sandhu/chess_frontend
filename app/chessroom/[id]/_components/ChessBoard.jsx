@@ -19,7 +19,7 @@ export default function LocalChessGame() {
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [showRestartPrompt, setShowRestartPrompt] = useState<boolean>(false);
 
-  const STORAGE_KEY = "localChessGame";
+  const STORAGE_KEY = "onlineChessGame";
 
   useEffect(() => {
     loadGame();

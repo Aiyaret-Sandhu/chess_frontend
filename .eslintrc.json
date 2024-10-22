@@ -1,3 +1,11 @@
+
+
+
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": "next/core-web-vitals",
+  "rules": {
+    // Disable specific rules here
+    "react/no-unescaped-entities": "off",
+    "@next/next/no-img-element": "off"
+  }
 }

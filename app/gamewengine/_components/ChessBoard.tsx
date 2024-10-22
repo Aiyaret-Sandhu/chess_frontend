@@ -21,6 +21,8 @@ const ChessBoard = () => {
   const [showRestartPrompt, setShowRestartPrompt] = useState<boolean>(false);
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
 
+  const BASE_URL = "http://localhost:8080";
+
   const saveGame = (fen: string, moveHistory: string[]) => {
     localStorage.setItem("chessGameState", fen);
     localStorage.setItem("moveHistory", JSON.stringify(moveHistory));
@@ -49,7 +51,7 @@ const ChessBoard = () => {
 
   const startGame = async () => {
     try {
-      const response = await axios.post("http://localhost:8080/chess/start");
+      const response = await axios.post(`${BASE_URL}/chess/start`);
       setMessage(response.data);
       chess.reset();
       setFen(chess.fen());
@@ -105,7 +107,7 @@ const ChessBoard = () => {
       setTimeout(async () => {
         try {
           const response = await axios.post(
-            "http://localhost:8080/chess/move",
+            `${BASE_URL}/chess/move`,
             { fen: chess.fen() }
           );
           chess.move(response.data);
@@ -162,7 +164,7 @@ const ChessBoard = () => {
     setDifficulty(level);
     try {
       await axios.post(
-        "http://localhost:8080/chess/difficulty",
+        `${BASE_URL}/chess/difficulty`,
         { difficulty: level },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -174,7 +176,7 @@ const ChessBoard = () => {
 
   const quitGame = async () => {
     try {
-      const response = await axios.post("http://localhost:8080/chess/quit");
+      const response = await axios.post(`${BASE_URL}/chess/quit`);
       setMessage(response.data);
     } catch (error) {
       console.error("Error quitting the game:", error);
@@ -221,8 +223,7 @@ const ChessBoard = () => {
 
   return (
     <div>
-      
-      <Header text={"Game with Bot..."}/>
+      <Header text={"Game with Bot..."} />
 
       <div className="flex gap-10 align-middle justify-center flex-wrap">
         <div className="flex flex-col gap-10 align-middle justify-center">
@@ -331,10 +332,29 @@ const ChessBoard = () => {
       />
 
       {showRestartPrompt && (
-        <div className="restart-prompt">
-          <p>The game is over. Would you like to restart?</p>
-          <button onClick={handleRestartGame}>Yes</button>
-          <button onClick={() => setShowRestartPrompt(false)}>No</button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg">
+            <p className="text-lg mb-4 text-black">
+              The game is over. Would you like to start a new game?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => {
+                  setShowRestartPrompt(false);
+                  startGame();
+                }}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setShowRestartPrompt(false)}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                No
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
