@@ -14,7 +14,7 @@ export default function LocalChessGame() {
   const [moveHistory, setMoveHistory] = useState<string[]>([])
   const [showValidMoves, setShowValidMoves] = useState<boolean>(false)
   const [validMoves, setValidMoves] = useState<string[]>([])
-  const [selectedSquare, setSelectedSquare] = useState<string | null>(null)
+  const [selectedSquare, setSelectedSquare] = useState<Square | null>(null)
   const [showRestartPrompt, setShowRestartPrompt] = useState<boolean>(false)
 
   const STORAGE_KEY = "onlineChessGame"
@@ -109,17 +109,18 @@ export default function LocalChessGame() {
     }
   }
 
-  const handleSquareClick = (square: Square) => { // Change the type to Square
-  if (selectedSquare) {
-    const move = { from: selectedSquare, to: square };
-    makeMove(move);
-  } else {
-    setSelectedSquare(square);
-    const moves = chess.moves({ square, verbose: true }) as Array<{ to: string }>;
-    const validMoveSquares = moves.map((move) => move.to);
-    setValidMoves(validMoveSquares);
-  }
-};
+  const handleSquareClick = (square: Square) => {
+    if (selectedSquare) {
+      const move = { from: selectedSquare, to: square };
+      makeMove(move);
+      setSelectedSquare(null); // Reset selected square after making the move
+    } else {
+      setSelectedSquare(square);
+      const moves = chess.moves({ square, verbose: true }) as Array<{ to: string }>;
+      const validMoveSquares = moves.map((move) => move.to);
+      setValidMoves(validMoveSquares);
+    }
+  };
 
 
 const onPieceDrop = (sourceSquare: Square, targetSquare: Square, piece: Piece): boolean => {
