@@ -59,46 +59,48 @@ export default function LocalChessGame() {
   }
 
   const makeMove = (move: { from: Square; to: Square; promotion?: string }) => {
-    const result = chess.move(move)
+    const result = chess.move(move);
     if (result) {
-      setFen(chess.fen())
-      setValidMoves([])
-      setSelectedSquare(null)
-
+      setFen(chess.fen());
+      setValidMoves([]);
+      setSelectedSquare(null);
+  
       const newMoveHistory = [
         ...moveHistory,
         `${currentPlayer === "white" ? "White" : "Black"}: ${result.san}`,
-      ]
-      setMoveHistory(newMoveHistory)
-      const newCurrentPlayer = currentPlayer === "white" ? "black" : "white"
-      setCurrentPlayer(newCurrentPlayer)
-
+      ];
+      setMoveHistory(newMoveHistory);
+      const newCurrentPlayer = currentPlayer === "white" ? "black" : "white";
+      setCurrentPlayer(newCurrentPlayer);
+  
       if (chess.isCheckmate()) {
-        toast.success(`Checkmate! ${currentPlayer === "white" ? "White" : "Black"} wins!`)
-        setShowRestartPrompt(true)
+        toast.success(`Checkmate! ${currentPlayer === "white" ? "White" : "Black"} wins!`);
+        setShowRestartPrompt(true);
       } else if (chess.isDraw()) {
-        toast.info("Game is a draw!")
-        setShowRestartPrompt(true)
+        toast.info("Game is a draw!");
+        setShowRestartPrompt(true);
       }
-
+  
       // Save game state after all updates
       saveGame();
     } else {
-      toast.error("Invalid move!")
+      toast.error("Invalid move!");
     }
-  }
+  };
+  
 
   const handleSquareClick = (square: Square) => {
     if (selectedSquare) {
-      const move = { from: selectedSquare, to: square }
-      makeMove(move)
+      const move = { from: selectedSquare, to: square }; // both are of type Square
+      makeMove(move);
     } else {
-      setSelectedSquare(square)
-      const moves = chess.moves({ square, verbose: true }) as Array<{ to: string }>
-      const validMoveSquares = moves.map((move) => move.to)
-      setValidMoves(validMoveSquares)
+      setSelectedSquare(square);
+      const moves = chess.moves({ square, verbose: true }) as Array<{ to: Square }>; // ensure to type correctly
+      const validMoveSquares = moves.map((move) => move.to);
+      setValidMoves(validMoveSquares);
     }
-  }
+  };
+  
 
   const onPieceDrop = (sourceSquare: Square, targetSquare: Square) => {
     {
