@@ -14,7 +14,7 @@ export default function LocalChessGame() {
   const [moveHistory, setMoveHistory] = useState<string[]>([])
   const [showValidMoves, setShowValidMoves] = useState<boolean>(false)
   const [validMoves, setValidMoves] = useState<string[]>([])
-  const [selectedSquare, setSelectedSquare] = useState<Square | null>(null)
+  const [selectedSquare, setSelectedSquare] = useState<string | null>(null)
   const [showRestartPrompt, setShowRestartPrompt] = useState<boolean>(false)
 
   const STORAGE_KEY = "onlineChessGame"
@@ -22,23 +22,6 @@ export default function LocalChessGame() {
   useEffect(() => {
     loadGame()
   }, [])
-
-  type Square = 
-  | 'a1' | 'a2' | 'a3' | 'a4' | 'a5' | 'a6' | 'a7' | 'a8'
-  | 'b1' | 'b2' | 'b3' | 'b4' | 'b5' | 'b6' | 'b7' | 'b8'
-  | 'c1' | 'c2' | 'c3' | 'c4' | 'c5' | 'c6' | 'c7' | 'c8'
-  | 'd1' | 'd2' | 'd3' | 'd4' | 'd5' | 'd6' | 'd7' | 'd8'
-  | 'e1' | 'e2' | 'e3' | 'e4' | 'e5' | 'e6' | 'e7' | 'e8'
-  | 'f1' | 'f2' | 'f3' | 'f4' | 'f5' | 'f6' | 'f7' | 'f8'
-  | 'g1' | 'g2' | 'g3' | 'g4' | 'g5' | 'g6' | 'g7' | 'g8'
-  | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'h7' | 'h8';
-
-
-  type Piece = {
-    type: "pawn" | "knight" | "bishop" | "rook" | "queen" | "king"; // Add more as needed
-    color: "white" | "black";
-  };
-  
 
   const saveGame = () => {
     const gameState = {
@@ -75,7 +58,7 @@ export default function LocalChessGame() {
     setShowValidMoves((prev) => !prev)
   }
 
-  const makeMove = (move: { from: Square; to: Square; promotion?: string }) => {
+  const makeMove = (move: { from: string; to: string; promotion?: string }) => {
     const result = chess.move(move)
     if (result) {
       setFen(chess.fen())
@@ -91,9 +74,7 @@ export default function LocalChessGame() {
       setCurrentPlayer(newCurrentPlayer)
 
       if (chess.isCheckmate()) {
-        toast.success(
-          `Checkmate! ${currentPlayer === "white" ? "White" : "Black"} wins!`
-        )
+        toast.success(`Checkmate! ${currentPlayer === "white" ? "White" : "Black"} wins!`)
         setShowRestartPrompt(true)
       } else if (chess.isDraw()) {
         toast.info("Game is a draw!")
@@ -101,45 +82,28 @@ export default function LocalChessGame() {
       }
 
       // Save game state after all updates
-      const gameState = {
-        fen: chess.fen(),
-        currentPlayer: newCurrentPlayer,
-        moveHistory: newMoveHistory,
-      }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState))
-
-      return true;
+      saveGame();
     } else {
       toast.error("Invalid move!")
-
-      return false;
     }
   }
 
-  const handleSquareClick = (square: Square) => {
+  const handleSquareClick = (square: string) => {
     if (selectedSquare) {
-      const move = { from: selectedSquare, to: square };
-      makeMove(move);
-      setSelectedSquare(null); // Reset selected square after making the move
+      const move = { from: selectedSquare, to: square }
+      makeMove(move)
     } else {
-      setSelectedSquare(square);
-      const moves = chess.moves({ square, verbose: true }) as Array<{ to: string }>;
-      const validMoveSquares = moves.map((move) => move.to);
-      setValidMoves(validMoveSquares);
+      setSelectedSquare(square)
+      const moves = chess.moves({ square, verbose: true }) as Array<{ to: string }>
+      const validMoveSquares = moves.map((move) => move.to)
+      setValidMoves(validMoveSquares)
     }
-  };
+  }
 
-
-  const onPieceDrop = (sourceSquare: Square, targetSquare: Square, piece: Piece): boolean => {
-    const move = { from: sourceSquare, to: targetSquare };
-    
-    // Check if the move is valid
-    const result = makeMove(move); // Assume makeMove returns a boolean indicating success
-  
-    return result; // Return true or false based on whether the move was successful
-  };
-  
-
+  const onPieceDrop = (sourceSquare: string, targetSquare: string) => {
+    const move = { from: sourceSquare, to: targetSquare }
+    makeMove(move)
+  }
 
   const renderMoveHistory = () => (
     <div className="move-history bg-gray-900 text-white p-4 rounded-md overflow-y-auto h-64 w-96">
@@ -148,7 +112,8 @@ export default function LocalChessGame() {
       <p className="text-gray-400">
         {moveHistory.map((move, index) => (
           <span key={index} className="mr-2">
-            {move}, 
+            {move}
+            {index < moveHistory.length - 1 ? ', ' : ''}
           </span>
         ))}
       </p>
@@ -162,23 +127,13 @@ export default function LocalChessGame() {
           <div className="flex gap-4 align-middle justify-center">
             <button
               onClick={startNewGame}
-              className="px-6 py-2"
-              style={{
-                backgroundColor: "rgba(40,40,40,0.8)",
-                borderRadius: "0.15rem",
-                color: "rgba(0, 220, 0, 0.8)",
-              }}
+              className="px-6 py-2 bg-gray-800 text-green-400 rounded hover:bg-gray-700"
             >
               New Game
             </button>
             <button
               onClick={handleShowValidMoves}
-              className="px-6 py-2"
-              style={{
-                backgroundColor: "rgba(40,40,40,0.8)",
-                borderRadius: "0.15rem",
-                color: "rgba(220, 0, 0, 0.8)",
-              }}
+              className="px-6 py-2 bg-gray-800 text-red-400 rounded hover:bg-gray-700"
             >
               {showValidMoves ? "Hide Moves" : "Show Moves"}
             </button>
