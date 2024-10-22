@@ -18,7 +18,7 @@ export default function PlayWOnline() {
         creator: 'Player1', // Replace with dynamic user info
       });
       const roomId = response.data.roomId;
-      const ngrokUrl = `http://localhost:3000/chessroom/${roomId}`;
+      const ngrokUrl = `${window.location.origin.replace('localhost', 'https://chess-frontend-six.vercel.app/')}/chessroom/${roomId}`;
       setRoomLink(ngrokUrl); // Set the link to be displayed and shared
     } catch (error) {
       console.error('Error creating room:', error);
