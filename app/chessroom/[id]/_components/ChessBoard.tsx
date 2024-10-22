@@ -101,8 +101,19 @@ export default function LocalChessGame() {
   }
 
   const onPieceDrop = (sourceSquare: Square, targetSquare: Square) => {
-    const move = { from: sourceSquare, to: targetSquare }
-    makeMove(move)
+    {
+      const move = { from: sourceSquare, to: targetSquare };
+      const result = chess.move(move);
+  
+      if (result) {
+          setFen(chess.fen());
+          saveGame();
+          return true;
+      } else {
+          toast.error('Invalid move!');
+          return false;  
+  }
+}
   }
 
   const renderMoveHistory = () => (
