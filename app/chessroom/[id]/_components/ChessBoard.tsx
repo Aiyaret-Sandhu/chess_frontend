@@ -33,6 +33,13 @@ export default function LocalChessGame() {
   | 'g1' | 'g2' | 'g3' | 'g4' | 'g5' | 'g6' | 'g7' | 'g8'
   | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'h7' | 'h8';
 
+
+  type Piece = {
+    type: "pawn" | "knight" | "bishop" | "rook" | "queen" | "king"; // Add more as needed
+    color: "white" | "black";
+  };
+  
+
   const saveGame = () => {
     const gameState = {
       fen: chess.fen(),
@@ -123,14 +130,15 @@ export default function LocalChessGame() {
   };
 
 
-const onPieceDrop = (sourceSquare: Square, targetSquare: Square, piece: Piece): boolean => {
-  const move = { from: sourceSquare, to: targetSquare };
-
-  // Check if the move is valid
-  const result = makeMove(move); // Assume makeMove returns a boolean indicating success
-
-  return result; // Return true or false based on whether the move was successful
-};
+  const onPieceDrop = (sourceSquare: Square, targetSquare: Square, piece: Piece): boolean => {
+    const move = { from: sourceSquare, to: targetSquare };
+    
+    // Check if the move is valid
+    const result = makeMove(move); // Assume makeMove returns a boolean indicating success
+  
+    return result; // Return true or false based on whether the move was successful
+  };
+  
 
 
   const renderMoveHistory = () => (
