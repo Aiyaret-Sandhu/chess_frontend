@@ -68,7 +68,7 @@ export default function LocalChessGame() {
     setShowValidMoves((prev) => !prev)
   }
 
-  const makeMove = (move: { from: string; to: string; promotion?: string }) => {
+  const makeMove = (move: { from: Square; to: Square; promotion?: string }) => {
     const result = chess.move(move)
     if (result) {
       setFen(chess.fen())
@@ -100,8 +100,12 @@ export default function LocalChessGame() {
         moveHistory: newMoveHistory,
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState))
+
+      return true;
     } else {
       toast.error("Invalid move!")
+
+      return false;
     }
   }
 
@@ -118,10 +122,15 @@ export default function LocalChessGame() {
 };
 
 
-  const onPieceDrop = (sourceSquare: string, targetSquare: string) => {
-    const move = { from: sourceSquare, to: targetSquare }
-    makeMove(move)
-  }
+const onPieceDrop = (sourceSquare: Square, targetSquare: Square, piece: Piece): boolean => {
+  const move = { from: sourceSquare, to: targetSquare };
+
+  // Check if the move is valid
+  const result = makeMove(move); // Assume makeMove returns a boolean indicating success
+
+  return result; // Return true or false based on whether the move was successful
+};
+
 
   const renderMoveHistory = () => (
     <div className="move-history bg-gray-900 text-white p-4 rounded-md overflow-y-auto h-64 w-96">
