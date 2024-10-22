@@ -1,13 +1,15 @@
 // app/playwonline/page.jsx
+"use client"
+
 import { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 export default function PlayWOnline() {
   const [roomLink, setRoomLink] = useState('');
   const router = useRouter();
 
-  const springBootBaseUrl = 'http://localhost:8080/api/rooms'; // Spring Boot backend
+  const springBootBaseUrl = 'https://2cea-152-59-119-61.ngrok-free.app/api/rooms'; // Spring Boot backend
 
   // Function to create a new chess room
   const handleCreateRoom = async () => {
@@ -16,7 +18,7 @@ export default function PlayWOnline() {
         creator: 'Player1', // Replace with dynamic user info
       });
       const roomId = response.data.roomId;
-      const ngrokUrl = `${window.location.origin.replace('localhost', 'your-ngrok-id.ngrok.io')}/chessroom/${roomId}`;
+      const ngrokUrl = `http://localhost:3000/chessroom/${roomId}`;
       setRoomLink(ngrokUrl); // Set the link to be displayed and shared
     } catch (error) {
       console.error('Error creating room:', error);

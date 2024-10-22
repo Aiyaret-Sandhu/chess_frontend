@@ -1,15 +1,17 @@
 // app/chessroom/[id]/page.jsx
-import { useRouter } from 'next/router';
+'use client'
+
+import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import ChessBoard from './_components/ChessBoard'
 
 export default function ChessRoom() {
-  const router = useRouter();
-  const { id } = router.query; // Get the room ID from the URL
+  const params = useParams();
+  const id = params.id as string; // Get the room ID from the URL
   const [roomStatus, setRoomStatus] = useState('Joining room...');
   
-  const springBootBaseUrl = 'http://localhost:8080/api/rooms'; // Spring Boot backend
+  const springBootBaseUrl = 'https://2cea-152-59-119-61.ngrok-free.app/api/rooms'; // Spring Boot backend
 
   useEffect(() => {
     const joinRoom = async () => {

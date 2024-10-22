@@ -21,7 +21,7 @@ const ChessBoard = () => {
   const [showRestartPrompt, setShowRestartPrompt] = useState<boolean>(false);
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
 
-  const BASE_URL = "http://localhost:8080";
+  const BASE_URL = "https://2cea-152-59-119-61.ngrok-free.app";
 
   const saveGame = (fen: string, moveHistory: string[]) => {
     localStorage.setItem("chessGameState", fen);
