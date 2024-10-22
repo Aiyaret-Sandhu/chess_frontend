@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Chessboard } from "react-chessboard"
-import { Chess } from "chess.js"
+import { Chess, Square } from "chess.js"
 import { toast, ToastContainer } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import Header from "@/components/header"
@@ -14,7 +14,7 @@ export default function LocalChessGame() {
   const [moveHistory, setMoveHistory] = useState<string[]>([])
   const [showValidMoves, setShowValidMoves] = useState<boolean>(false)
   const [validMoves, setValidMoves] = useState<string[]>([])
-  const [selectedSquare, setSelectedSquare] = useState<string | null>(null)
+  const [selectedSquare, setSelectedSquare] = useState<Square | null>(null)
   const [showRestartPrompt, setShowRestartPrompt] = useState<boolean>(false)
 
   const STORAGE_KEY = "onlineChessGame"
@@ -58,7 +58,7 @@ export default function LocalChessGame() {
     setShowValidMoves((prev) => !prev)
   }
 
-  const makeMove = (move: { from: string; to: string; promotion?: string }) => {
+  const makeMove = (move: { from: Square; to: Square; promotion?: string }) => {
     const result = chess.move(move)
     if (result) {
       setFen(chess.fen())
@@ -88,7 +88,7 @@ export default function LocalChessGame() {
     }
   }
 
-  const handleSquareClick = (square: string) => {
+  const handleSquareClick = (square: Square) => {
     if (selectedSquare) {
       const move = { from: selectedSquare, to: square }
       makeMove(move)
@@ -100,7 +100,7 @@ export default function LocalChessGame() {
     }
   }
 
-  const onPieceDrop = (sourceSquare: string, targetSquare: string) => {
+  const onPieceDrop = (sourceSquare: Square, targetSquare: Square) => {
     const move = { from: sourceSquare, to: targetSquare }
     makeMove(move)
   }
